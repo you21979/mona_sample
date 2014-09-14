@@ -1,0 +1,36 @@
+<html>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script>
+
+var TIMER_MSEC = 1 * 1000;
+var UPDATE_INTERVAL_MSEC = 30 * 1000;
+var proc = function(nexttick, callback){
+    var now = (new Date()).getTime();
+    if(now < nexttick){
+        return callback(nexttick);
+    }
+    $.get('/mona_jpy', {}, function(data){
+        var d = JSON.parse(data);
+        $("#mona_jpy").html(d.price);
+        $("#time").html(new Date(d.date*1000));
+        return callback(now + UPDATE_INTERVAL_MSEC);
+    });
+}
+var update = function(nexttick, msec){
+    proc(nexttick, function(nexttick){
+        setTimeout(function(){
+            update(nexttick, msec);
+        }, msec);
+    });
+}
+update((new Date()).getTime(), TIMER_MSEC);
+
+</script>
+<body>
+モナコインのレート(円)
+<div id="time">0</div>
+<div id="mona_jpy">0</div>
+
+</body>
+</html>
